@@ -36,6 +36,14 @@ export const login = (req, res) => {
         req.session.save((err) => {
           if (err) return res.status(500).json({ msg: "Gagal menyimpan sesi" });
           console.log("Session setelah login:", req.session); // Debug session di terminal
+
+          // Set cookie
+          res.cookie("dataUser", JSON.stringify(req.session.dataUser), {
+            httpOnly: true,
+            secure: false, // Set true jika pakai HTTPS
+            sameSite: "lax",
+          });
+
           res.send({ login: true, useremail: gmail });
         });
       });
@@ -84,7 +92,9 @@ export const logout = (req, res) => {
       console.error("Error saat logout:", err);
       return res.status(500).json({ msg: "Gagal logout" });
     }
-    res.clearCookie("connect.sid"); // Hapus cookie session di client (opsional)
+    // res.clearCookie("connect.sid", { path: "/dashboard" }); // Hapus cookie session di client (opsional)
+    res.clearCookie("connect.sid");
+    res.clearCookie("dataUser");
     return res.status(200).json({ msg: "Berhasil logout" });
   });
 };

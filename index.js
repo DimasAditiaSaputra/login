@@ -16,9 +16,9 @@ app.use(
   session({
     secret: "secret-key",
     resave: false,
-    saveUninitialized: true,
+    saveUninitialized: false, // 🟢 Ubah ke false biar session tidak dibuat tanpa login
     cookie: {
-      secure: "auto",
+      secure: false, // 🟢 Pastikan false kalau masih di localhost
       httpOnly: true,
       sameSite: "lax",
       maxAge: 24 * 60 * 60 * 1000, // 24 hours
@@ -28,7 +28,7 @@ app.use(
 
 app.use(
   cors({
-    origin: "http://127.0.0.1:5500",
+    origin: ["http://127.0.0.1:5500", "http://localhost:5173"],
     credentials: true,
   })
 );
@@ -38,9 +38,9 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use("/user", routerUser);
 
 app.get("/dashboard", (req, res) => {
-  if (req.session.dataUser) {
+  if (req.session && req.session.dataUser) {
     console.log("ini dari dashboard: " + req.session.dataUser);
-    res.send({ login: true, user: req.session.dataUser });
+    res.json({ login: true, user: req.session.dataUser, cookies: req.cookies });
   } else {
     res.send({ login: false });
   }
